@@ -1,6 +1,8 @@
 use std::fs;
 mod scanner;
 use scanner::*;
+mod parser;
+use parser::*;
 
 fn main() {
    let file_path: &str = "/Users/mihirs/Desktop/Rust/compilerProject/src/test_output.rs";
