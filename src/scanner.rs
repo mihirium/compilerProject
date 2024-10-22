@@ -2,7 +2,7 @@
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
-    pub literal: Option<String>, 
+    pub literal: Option<String>,
     pub line: usize,
 }
 
@@ -20,14 +20,14 @@ pub enum TokenType {
     BANG, BANGEQUAL,
     EQUAL, EQUALEQUAL,
     GREATER, GREATEREQUAL,
-    LESS, LESSEQUAL,
+    LESS, LESSEQUAL, PLUSEQUAL,
 
     // Literals.
     IDENTIFIER, STRING, NUMBER,
 
     // Keywords.
     AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
+    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, PUB, FN, MUT, LET, MOD, USE,
 
     EOF,
     UNKNOWN, // For unrecognized characters
@@ -58,7 +58,6 @@ impl Scanner {
             self.scan_token();
         }
 
-
         self.tokens.push(Token {
             token_type: TokenType::EOF,
             lexeme: "".to_string(),
@@ -69,17 +68,9 @@ impl Scanner {
 
     fn peek(&self) -> char {
         if self.is_at_end() {
-            '\0' 
+            '\0'
         } else {
             self.source[self.current]
-        }
-    }
-
-    fn peek_next(&self) -> char {
-        if self.current + 1 >= self.source.len() {
-            '\0'  
-        } else {
-            self.source[self.current + 1]
         }
     }
 
@@ -93,10 +84,8 @@ impl Scanner {
             ',' => self.add_token(TokenType::COMMA, None),
             '.' => self.add_token(TokenType::DOT, None),
             '-' => self.add_token(TokenType::MINUS, None),
-            '+' => self.add_token(TokenType::PLUS, None),
             ';' => self.add_token(TokenType::SEMICOLON, None),
             '*' => self.add_token(TokenType::STAR, None),
-
 
             '!' => {
                 let token_type = if self.match_char('=') {
@@ -131,9 +120,17 @@ impl Scanner {
                 self.add_token(token_type, None);
             }
 
+            '+' => {
+                let token_type = if self.match_char('=') {
+                    TokenType::PLUSEQUAL
+                } else {
+                    TokenType::PLUS
+                };
+                self.add_token(token_type, None);
+            }
+
             '/' => {
                 if self.match_char('/') {
-
                     while self.peek() != '\n' && !self.is_at_end() {
                         self.advance();
                     }
@@ -142,23 +139,18 @@ impl Scanner {
                 }
             }
 
-
             ' ' | '\r' | '\t' => {
-
+                // Ignore whitespace
             }
             '\n' => {
                 self.line += 1;
             }
 
-
             '"' => self.string(),
-
 
             '0'..='9' => self.number(),
 
-
             'a'..='z' | 'A'..='Z' | '_' => self.identifier(),
-
 
             _ => {
                 self.add_token(TokenType::UNKNOWN, None);
@@ -213,7 +205,6 @@ impl Scanner {
 
         self.current += 1;
 
-
         let value: String = self.source[self.start + 1..self.current - 1]
             .iter()
             .collect();
@@ -225,9 +216,7 @@ impl Scanner {
             self.current += 1;
         }
 
-
         if !self.is_at_end() && self.source[self.current] == '.' && self.peek().is_ascii_digit() {
-
             self.current += 1;
 
             while !self.is_at_end() && self.source[self.current].is_ascii_digit() {
@@ -247,10 +236,17 @@ impl Scanner {
         }
 
         let text: String = self.source[self.start..self.current].iter().collect();
-        let token_type = match self.keyword_type(&text) {
-            Some(kw) => kw,
-            None => TokenType::IDENTIFIER,
+        
+        // Check for println! specifically here
+        let token_type = if text == "println" && self.match_char('!') {
+            TokenType::PRINT // Match println!
+        } else {
+            match self.keyword_type(&text) {
+                Some(kw) => kw,
+                None => TokenType::IDENTIFIER,
+            }
         };
+        
         self.add_token(token_type, None);
     }
 
@@ -265,13 +261,17 @@ impl Scanner {
             "if" => Some(TokenType::IF),
             "nil" => Some(TokenType::NIL),
             "or" => Some(TokenType::OR),
-            "println!" => Some(TokenType::PRINT),
             "return" => Some(TokenType::RETURN),
             "super" => Some(TokenType::SUPER),
             "this" => Some(TokenType::THIS),
             "true" => Some(TokenType::TRUE),
             "var" => Some(TokenType::VAR),
             "while" => Some(TokenType::WHILE),
+            "pub" => Some(TokenType::PUB),
+            "fn" => Some(TokenType::FN),
+            "mod" => Some(TokenType::MOD),
+            "let" => Some(TokenType::LET),
+            "mut" => Some(TokenType::MUT),
             _ => None,
         }
     }

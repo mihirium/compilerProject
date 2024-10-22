@@ -18,8 +18,9 @@ fn main() {
 //     line: 40
 //    };
 //    print_token(my_token);
-    scanner_main(&contents);
-
+scanner_main(&contents);
+    // let tokens = scanner_main(&contents);
+    // parser_main(&tokens);
 }
 
 
