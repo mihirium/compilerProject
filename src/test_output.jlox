@@ -1,0 +1,2 @@
+var imAVariable = "here is my value";
+var iAmNil;

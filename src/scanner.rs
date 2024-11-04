@@ -12,25 +12,25 @@ pub fn print_token(my_token: &Token) {
 
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
-    // Single-character tokens.
-    LEFTPAREN, RIGHTPAREN, LEFTBRACE, RIGHTBRACE,
-    COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
+  // Single-character tokens.
+  LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
+  COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
 
-    // One or two character tokens.
-    BANG, BANGEQUAL,
-    EQUAL, EQUALEQUAL,
-    GREATER, GREATEREQUAL,
-    LESS, LESSEQUAL, PLUSEQUAL,
+  // One or two character tokens.
+  BANG, BANG_EQUAL,
+  EQUAL, EQUAL_EQUAL,
+  GREATER, GREATER_EQUAL,
+  LESS, LESS_EQUAL,
 
-    // Literals.
-    IDENTIFIER, STRING, NUMBER,
+  // Literals.
+  IDENTIFIER, STRING, NUMBER,
 
-    // Keywords.
-    AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, PUB, FN, MUT, LET, MOD, USE,
+  // Keywords.
+  AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
+  PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 
-    EOF,
-    UNKNOWN, // For unrecognized characters
+  EOF,
+  UNKNOWN
 }
 
 struct Scanner {
@@ -77,19 +77,20 @@ impl Scanner {
     fn scan_token(&mut self) {
         let c = self.advance();
         match c {
-            '(' => self.add_token(TokenType::LEFTPAREN, None),
-            ')' => self.add_token(TokenType::RIGHTPAREN, None),
-            '{' => self.add_token(TokenType::LEFTBRACE, None),
-            '}' => self.add_token(TokenType::RIGHTBRACE, None),
+            '(' => self.add_token(TokenType::LEFT_PAREN, None),
+            ')' => self.add_token(TokenType::RIGHT_PAREN, None),
+            '{' => self.add_token(TokenType::LEFT_BRACE, None),
+            '}' => self.add_token(TokenType::RIGHT_BRACE, None),
             ',' => self.add_token(TokenType::COMMA, None),
             '.' => self.add_token(TokenType::DOT, None),
             '-' => self.add_token(TokenType::MINUS, None),
             ';' => self.add_token(TokenType::SEMICOLON, None),
             '*' => self.add_token(TokenType::STAR, None),
+            '+' => self.add_token(TokenType::PLUS, None),
 
             '!' => {
                 let token_type = if self.match_char('=') {
-                    TokenType::BANGEQUAL
+                    TokenType::BANG_EQUAL
                 } else {
                     TokenType::BANG
                 };
@@ -97,7 +98,7 @@ impl Scanner {
             }
             '=' => {
                 let token_type = if self.match_char('=') {
-                    TokenType::EQUALEQUAL
+                    TokenType::EQUAL_EQUAL
                 } else {
                     TokenType::EQUAL
                 };
@@ -105,7 +106,7 @@ impl Scanner {
             }
             '<' => {
                 let token_type = if self.match_char('=') {
-                    TokenType::LESSEQUAL
+                    TokenType::LESS_EQUAL
                 } else {
                     TokenType::LESS
                 };
@@ -113,22 +114,12 @@ impl Scanner {
             }
             '>' => {
                 let token_type = if self.match_char('=') {
-                    TokenType::GREATEREQUAL
+                    TokenType::GREATER_EQUAL
                 } else {
                     TokenType::GREATER
                 };
                 self.add_token(token_type, None);
             }
-
-            '+' => {
-                let token_type = if self.match_char('=') {
-                    TokenType::PLUSEQUAL
-                } else {
-                    TokenType::PLUS
-                };
-                self.add_token(token_type, None);
-            }
-
             '/' => {
                 if self.match_char('/') {
                     while self.peek() != '\n' && !self.is_at_end() {
@@ -267,11 +258,7 @@ impl Scanner {
             "true" => Some(TokenType::TRUE),
             "var" => Some(TokenType::VAR),
             "while" => Some(TokenType::WHILE),
-            "pub" => Some(TokenType::PUB),
-            "fn" => Some(TokenType::FN),
-            "mod" => Some(TokenType::MOD),
-            "let" => Some(TokenType::LET),
-            "mut" => Some(TokenType::MUT),
+            "print"=> Some(TokenType::PRINT),
             _ => None,
         }
     }
@@ -281,6 +268,7 @@ pub fn scanner_main(source: &str) {
     let mut scanner = Scanner::new(source);
     scanner.scan_tokens();
 
+    println!("printing tokens");
     for token in scanner.tokens {
         print_token(&token);
     }
