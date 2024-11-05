@@ -38,7 +38,7 @@ impl Expr {
         match self {
             Expr::Binary { left, operator, right } =>  format!("({} {} {})", operator.lexeme, left.to_string(), right.to_string()),
             Expr::Grouping { expression } => format!("(group {})", expression.to_string()),
-            Expr::Literal { value } => format!("({})", value.to_string()),
+            Expr::Literal { value } => format!("{}", value.to_string()),
             Expr::Unary { operator, right } => {
                 let operator_str = &operator.lexeme;
                 let right_str = (*right).to_string();

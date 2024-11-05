@@ -22,6 +22,8 @@ fn main() {
     let multi = Token { token_type: TokenType::STAR, lexeme: "*".to_owned(), literal: None, line: usize::MAX };
     let ast = Expr::Binary { left: Box::new(Expr::Unary { operator: minus_token, right: Box::new(ontwothree) }), operator: multi, right: Box::new(group) };
     ast.print();
+
+    let test = Box::new(Expr::Literal { value: LiteralValue::Number(45.67) });
 }
 
 
